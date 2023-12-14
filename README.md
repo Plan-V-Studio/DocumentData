@@ -48,3 +48,7 @@ class UserData {
 ## Documentation
 
 Document Data use DocC to generate documentation, you can download compiled document in [release page](https://github.com/Plan-V-Studio/DocumentData/releases).
+
+## Statememt
+
+**This is beta software, which means that none of the features and methods of the library have been systematically tested. Plan-V Studio will not be responsible for any direct or indirect loss caused by your use of this library.**
