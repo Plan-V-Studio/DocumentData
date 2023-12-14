@@ -1,5 +1,10 @@
 # Document Data
 
+![Swift Package Manager](https://img.shields.io/badge/Swift_Package_Manager-compatible-orange)
+![GitHub License](https://img.shields.io/github/license/Plan-V-Studio/DocumentData)
+![Compatible Platforms](https://img.shields.io/badge/Supported_Platform-iOS_17%2B_%7C_macOS_14%2B_%7C_tvOS_13%2B_%7C_watchOS_10%2B-blue)
+
+
 A data persistence library like SwiftData, and persist all the data into Property List Document.
 
 ## Setup
