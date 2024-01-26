@@ -22,13 +22,21 @@ extension StorageNameMacro: PeerMacro {
             throw PersistedModelError.incorrectSyntaxStructure(declaration, VariableDeclSyntax.self)
         }
         
+        guard decl.bindingSpecifier.text == "let" else {
+            throw PersistedModelError.onlyAvailableForConstant
+        }
+        
+        guard decl.modifiers.contains(where: { $0.name.text == "static" }) else {
+            throw PersistedModelError.onlyAvailableForStaticProperty
+        }
+        
         guard let initializer = decl.bindings.first?.as(PatternBindingSyntax.self)?.initializer else {
             throw PersistedModelError.storageNoInitializer
         }
         
         return [
             """
-            @_PersistedIgnored private let _$persistedDocumentName = "\(raw: initializer.value.as(StringLiteralExprSyntax.self)!.segments.description).storage.plist"
+            @_PersistedIgnored private static let _$persistedDocumentName = "\(raw: initializer.value.as(StringLiteralExprSyntax.self)!.segments.description).storage.plist"
             """
         ]
     }

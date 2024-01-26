@@ -34,6 +34,12 @@ enum PersistedModelError: CustomStringConvertible, Error {
     /// This error may occurred when @StorageName macro do not attached on a variable which have initializer.
     case storageNoInitializer
     
+    /// This error may occurred when macro required it property declared as a constant (let syntax).
+    case onlyAvailableForConstant
+    
+    /// This error may occurred when macro required it property declared as a static property.
+    case onlyAvailableForStaticProperty
+    
     var description: String {
         switch self {
         case .unavaliableApplyingType:
@@ -50,6 +56,10 @@ enum PersistedModelError: CustomStringConvertible, Error {
             return "Some error occurred while expanding macros. Occurred at \(function)"
         case .storageNoInitializer:
             return "The property modified by the @StorageName macro requires an initializer."
+        case .onlyAvailableForConstant:
+            return "@StorageName only available for \"let\" property."
+        case .onlyAvailableForStaticProperty:
+            return "@StorageName only available for static property."
         }
     }
 }

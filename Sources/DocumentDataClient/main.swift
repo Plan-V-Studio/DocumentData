@@ -13,7 +13,7 @@ class StoringData {
     var ignoredButObservedToggle: Bool
     
     @StorageName
-    var storeName = "Default"
+    static let storeName = "Default"
     
     init(isFirstToggleOpen: Bool, textFieldText: String, ignoredButObservedToggle: Bool) {
         self.isFirstToggleOpen = isFirstToggleOpen

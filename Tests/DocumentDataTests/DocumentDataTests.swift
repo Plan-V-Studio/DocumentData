@@ -31,7 +31,7 @@ final class DocumentDataTests: XCTestCase {
                 var ignoredButObservedToggle: Bool
                 
                 @StorageName
-                var storeName = "Default"
+                static let storeName = "Default"
                 
                 init(isFirstToggleOpen: Bool, textFieldText: String, ignoredButObservedToggle: Bool) {
                     self.isFirstToggleOpen = isFirstToggleOpen
@@ -96,9 +96,9 @@ final class DocumentDataTests: XCTestCase {
 
                 private var _ignoredButObservedToggle: Bool
                 
-                var storeName = "Default"
+                static let storeName = "Default"
 
-                private let _$persistedDocumentName = "Default.storage.plist"
+                private static let _$persistedDocumentName = "Default.storage.plist"
                 
                 init(isFirstToggleOpen: Bool, textFieldText: String, ignoredButObservedToggle: Bool) {
                     self.isFirstToggleOpen = isFirstToggleOpen
@@ -118,7 +118,6 @@ final class DocumentDataTests: XCTestCase {
                     self._isFirstToggleOpen = try container.decode(Bool.self, forKey: ._isFirstToggleOpen)
                     self._textFieldText = try container.decode(String.self, forKey: ._textFieldText)
                     self.ignoredButObservedToggle = .init()
-                    self.storeName  = .init()
                 }
 
                 enum _$PersistedCodingKeys: String, CodingKey {
@@ -130,7 +129,7 @@ final class DocumentDataTests: XCTestCase {
                     let container = Foundation.URL(filePath: Foundation.NSHomeDirectory())
                         .appending(component: "Library")
                         .appending(component: "Application Support")
-                        .appending(component: _$persistedDocumentName)
+                        .appending(component: Self._$persistedDocumentName)
 
                     if !Foundation.FileManager.default.fileExists(atPath: container.path(percentEncoded: false)) {
                         self.save()
@@ -148,7 +147,7 @@ final class DocumentDataTests: XCTestCase {
                     let container = Foundation.URL(filePath: NSHomeDirectory())
                         .appending(component: "Library")
                         .appending(component: "Application Support")
-                        .appending(component: _$persistedDocumentName)
+                        .appending(component: Self._$persistedDocumentName)
 
                     let encoder = PropertyListEncoder()
                     encoder.outputFormat = .binary
@@ -170,7 +169,7 @@ final class DocumentDataTests: XCTestCase {
                     try _$observationRegistrar.withMutation(of: self, keyPath: keyPath, mutation)
                 }
             
-                var `default`: StoringData {
+                static var `default`: StoringData {
                     let container = Foundation.URL(filePath: Foundation.NSHomeDirectory())
                         .appending(component: "Library")
                         .appending(component: "Application Support")
@@ -222,7 +221,7 @@ class MacroStoringData {
     var ignoredButObservedToggle: Bool
     
     @StorageName
-    var storeName = "Default"
+    static let storeName = "Default"
     
     init(isFirstToggleOpen: Bool, textFieldText: String, ignoredButObservedToggle: Bool) {
         self.isFirstToggleOpen = isFirstToggleOpen

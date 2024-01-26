@@ -31,7 +31,7 @@ extension PersistedModelMacro: MemberMacro {
         // assert _$persistedDocumentName
         if try !members.has(attributeDeclDocumentName) {
             result.append("""
-            private let _$persistedDocumentName = "\(raw: decl.name.text).storage.plist"
+            private static let _$persistedDocumentName = "\(raw: decl.name.text).storage.plist"
             """)
         }
         
@@ -71,7 +71,7 @@ extension PersistedModelMacro: MemberMacro {
                 let container = Foundation.URL(filePath: Foundation.NSHomeDirectory())
                     .appending(component: "Library")
                     .appending(component: "Application Support")
-                    .appending(component: _$persistedDocumentName)
+                    .appending(component: Self._$persistedDocumentName)
             
                 if !Foundation.FileManager.default.fileExists(atPath: container.path(percentEncoded: false)) {
                     self.save()
@@ -92,7 +92,7 @@ extension PersistedModelMacro: MemberMacro {
                 let container = Foundation.URL(filePath: NSHomeDirectory())
                     .appending(component: "Library")
                     .appending(component: "Application Support")
-                    .appending(component: _$persistedDocumentName)
+                    .appending(component: Self._$persistedDocumentName)
             
                 let encoder = PropertyListEncoder()
                 encoder.outputFormat = .binary
@@ -123,7 +123,7 @@ extension PersistedModelMacro: MemberMacro {
             
             // default
             """
-            var `default`: \(raw: decl.name.text) {
+            static var `default`: \(raw: decl.name.text) {
                 let container = Foundation.URL(filePath: Foundation.NSHomeDirectory())
                     .appending(component: "Library")
                     .appending(component: "Application Support")
@@ -176,9 +176,11 @@ extension PersistedModelMacro: MemberMacro {
                         "    self._\(decl.bindings.first!.pattern.description) = try container.decode(\(decl.bindings.first!.typeAnnotation!.type.description).self, forKey: ._\(decl.bindings.first!.pattern.description))"
                     )
                 } else {
-                    expansion.append(
-                        "    self.\(decl.bindings.first!.pattern.description) = .init()"
-                    )
+                    if decl.bindingSpecifier.text != "let" {
+                        expansion.append(
+                            "    self.\(decl.bindings.first!.pattern.description) = .init()"
+                        )
+                    }
                 }
             }
         }
