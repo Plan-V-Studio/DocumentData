@@ -120,6 +120,19 @@ extension PersistedModelMacro: MemberMacro {
                 try _$observationRegistrar.withMutation(of: self, keyPath: keyPath, mutation)
             }
             """,
+            
+            // default
+            """
+            var `default`: \(raw: decl.name.text) {
+                let container = Foundation.URL(filePath: Foundation.NSHomeDirectory())
+                    .appending(component: "Library")
+                    .appending(component: "Application Support")
+                    .appending(component: _$persistedDocumentName)
+                let data = try! Data(contentsOf: container)
+                let decoder = Foundation.PropertyListDecoder()
+                return try! decoder.decode(\(raw: decl.name.text).self, from: data)
+            }
+            """
         ]
         
         return result

@@ -35,7 +35,8 @@ import Observation
         named(encode),
         named(access),
         named(save),
-        named(withMutation)
+        named(withMutation),
+        named(`default`)
 )
 @attached(memberAttribute)
 @attached(extension, conformances: Observable, Codable, DocumentPersistedModel)

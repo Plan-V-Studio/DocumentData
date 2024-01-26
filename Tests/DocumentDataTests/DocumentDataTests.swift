@@ -169,6 +169,16 @@ final class DocumentDataTests: XCTestCase {
                 ) rethrows -> MutationResult {
                     try _$observationRegistrar.withMutation(of: self, keyPath: keyPath, mutation)
                 }
+            
+                var `default`: StoringData {
+                    let container = Foundation.URL(filePath: Foundation.NSHomeDirectory())
+                        .appending(component: "Library")
+                        .appending(component: "Application Support")
+                        .appending(component: _$persistedDocumentName)
+                    let data = try! Data(contentsOf: container)
+                    let decoder = Foundation.PropertyListDecoder()
+                    return try! decoder.decode(StoringData.self, from: data)
+                }
             }
 
             extension StoringData: Observation.Observable {
