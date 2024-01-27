@@ -96,3 +96,5 @@ public macro _PersistedIgnored() = #externalMacro(module: "DocumentDataMacros", 
 @attached(peer, names: named(_$persistedDocumentName))
 public macro StorageName() = #externalMacro(module: "DocumentDataMacros", type: "StorageNameMacro")
 
+@attached(peer, names: named(_$PersistedCodingKeys))
+public macro ModelCodingKey() = #externalMacro(module: "DocumentDataMacros", type: "ModelCodingKeyMacro")
