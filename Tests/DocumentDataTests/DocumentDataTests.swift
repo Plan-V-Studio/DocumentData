@@ -85,7 +85,8 @@ final class DocumentDataTests: XCTestCase {
                         _ignoredButObservedToggle = newValue
                     }
                     get {
-                        _ignoredButObservedToggle
+                        access(keyPath: \.ignoredButObservedToggle)
+                        return _ignoredButObservedToggle
                     }
                     set {
                         _$observationRegistrar.withMutation(of: self, keyPath: \.ignoredButObservedToggle) {

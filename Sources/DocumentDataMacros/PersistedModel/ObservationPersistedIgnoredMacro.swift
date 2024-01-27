@@ -51,7 +51,8 @@ extension ObservationPersistedIgnoredMacro: AccessorMacro {
             // Getter
             """
             get {
-                _\(raw: decl.bindings.first!.pattern.description)
+                access(keyPath: \\.\(raw: decl.bindings.first!.pattern.description))
+                return _\(raw: decl.bindings.first!.pattern.description)
             }
             """,
             // Setter
