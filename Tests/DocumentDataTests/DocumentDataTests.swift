@@ -23,7 +23,7 @@ final class DocumentDataTests: XCTestCase {
         assertMacroExpansion(
             """
             @PersistedModel
-            class StoringData {
+            final class StoringData {
                 var isFirstToggleOpen: Bool
                 var textFieldText: String
                 
@@ -41,7 +41,7 @@ final class DocumentDataTests: XCTestCase {
             }
             """,
             expandedSource: #"""
-            class StoringData {
+            final class StoringData {
                 var isFirstToggleOpen: Bool {
                     @storageRestrictions(initializes: _isFirstToggleOpen)
                     init {
@@ -169,7 +169,7 @@ final class DocumentDataTests: XCTestCase {
                 ) rethrows -> MutationResult {
                     try _$observationRegistrar.withMutation(of: self, keyPath: keyPath, mutation)
                 }
-            
+
                 static var `default`: StoringData {
                     let container = Foundation.URL(filePath: Foundation.NSHomeDirectory())
                         .appending(component: "Library")
@@ -179,6 +179,15 @@ final class DocumentDataTests: XCTestCase {
                     let decoder = Foundation.PropertyListDecoder()
                     return try! decoder.decode(StoringData.self, from: data)
                 }
+
+                static var isPersisted: Bool {
+                    let container = Foundation.URL(filePath: Foundation.NSHomeDirectory())
+                        .appending(component: "Library")
+                        .appending(component: "Application Support")
+                        .appending(component: _$persistedDocumentName)
+                    let fileManager = Foundation.FileManager()
+                    return fileManager.fileExists(atPath: container.path(percentEncoded: false))
+                }
             }
 
             extension StoringData: Observation.Observable {
@@ -186,7 +195,34 @@ final class DocumentDataTests: XCTestCase {
 
             extension StoringData: Codable {
             }
+
+            extension StoringData: DocumentData.DocumentPersistedModel {
+            }
             """#,
+            macros: testMacros
+        )
+        #else
+        throw XCTSkip("macros are only supported when running tests for the host platform")
+        #endif
+    }
+    
+    func testPersistedModelAppliedOnNonFinalClass() throws {
+        #if canImport(DocumentDataMacros)
+        assertMacroExpansion(
+            """
+            @PersistedModel
+            class Model {
+                var property: String
+            }
+            """,
+            expandedSource: """
+            class Model {
+                var property: String
+            }
+            """,
+            diagnostics: [
+                DiagnosticSpec(message: "@PersistedModel only available for final class.", line: 1, column: 1)
+            ],
             macros: testMacros
         )
         #else
@@ -216,37 +252,4 @@ final class DocumentDataTests: XCTestCase {
         throw XCTSkip("macros are only supported when running tests for the host platform")
         #endif
     }
-    
-    // This will throw EXC_BAD_ACCESS
-    func testPersistedModel() throws {
-        #if canImport(DocumentData)
-        let store = MacroStoringData(isFirstToggleOpen: false, textFieldText: "some", ignoredButObservedToggle: false)
-        print(NSHomeDirectory())
-        
-        store.isFirstToggleOpen = false
-        XCTAssert(store.isFirstToggleOpen == false)
-        #else
-        throw XCTSkip("the host platform are not supported")
-        #endif
-    }
 }
-
-#if canImport(DocumentData)
-@PersistedModel
-class MacroStoringData {
-    var isFirstToggleOpen: Bool
-    var textFieldText: String
-    
-    @PersistedIgnored
-    var ignoredButObservedToggle: Bool
-    
-    @StorageName
-    static let storeName = "Default"
-    
-    init(isFirstToggleOpen: Bool, textFieldText: String, ignoredButObservedToggle: Bool) {
-        self.isFirstToggleOpen = isFirstToggleOpen
-        self.textFieldText = textFieldText
-        self.ignoredButObservedToggle = ignoredButObservedToggle
-    }
-}
-#endif

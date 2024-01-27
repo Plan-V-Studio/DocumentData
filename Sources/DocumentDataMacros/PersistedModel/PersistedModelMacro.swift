@@ -22,6 +22,10 @@ extension PersistedModelMacro: MemberMacro {
             throw PersistedModelError.unavaliableApplyingType
         }
         
+        guard decl.modifiers.contains(where: { $0.name.text == "final" }) else {
+            throw PersistedModelError.unavailableForNonFinalClass
+        }
+        
         guard let members = decl.memberBlock.members.as(MemberBlockItemListSyntax.self) else {
             throw PersistedModelError.incorrectClassStructure(syntax: decl)
         }
@@ -121,7 +125,7 @@ extension PersistedModelMacro: MemberMacro {
             }
             """,
             
-            // default
+            // default: DocumentPersistedModel
             """
             static var `default`: \(raw: decl.name.text) {
                 let container = Foundation.URL(filePath: Foundation.NSHomeDirectory())
@@ -132,7 +136,19 @@ extension PersistedModelMacro: MemberMacro {
                 let decoder = Foundation.PropertyListDecoder()
                 return try! decoder.decode(\(raw: decl.name.text).self, from: data)
             }
+            """,
+            
+            // isPersisted: DocumentPersistedModel
             """
+            static var isPersisted: Bool {
+                let container = Foundation.URL(filePath: Foundation.NSHomeDirectory())
+                    .appending(component: "Library")
+                    .appending(component: "Application Support")
+                    .appending(component: _$persistedDocumentName)
+                let fileManager = Foundation.FileManager()
+                return fileManager.fileExists(atPath: container.path(percentEncoded: false))
+            }
+            """,
         ]
         
         return result
@@ -213,6 +229,11 @@ extension PersistedModelMacro: ExtensionMacro {
         guard let decl = declaration.as(ClassDeclSyntax.self) else {
             throw PersistedModelError.unavaliableApplyingType
         }
+        
+        guard decl.modifiers.contains(where: { $0.name.text == "final" }) else {
+            return []
+        }
+        
         return [
             try ExtensionDeclSyntax(
                 """
@@ -224,11 +245,11 @@ extension PersistedModelMacro: ExtensionMacro {
                 extension \(raw: decl.name.text): Codable { }
                 """
             ),
-//            try ExtensionDeclSyntax(
-//                """
-//                extension \(raw: decl.name.text): DocumentData.DocumentPersistedModel { }
-//                """
-//            ),
+            try ExtensionDeclSyntax(
+                """
+                extension \(raw: decl.name.text): DocumentData.DocumentPersistedModel { }
+                """
+            ),
         ]
     }
 }
@@ -240,7 +261,14 @@ extension PersistedModelMacro: MemberAttributeMacro {
         providingAttributesFor member: some DeclSyntaxProtocol,
         in context: some MacroExpansionContext
     ) throws -> [AttributeSyntax] {
-        // TODO: not finish
+        guard let decl = declaration.as(ClassDeclSyntax.self) else {
+            throw PersistedModelError.unavaliableApplyingType
+        }
+        
+        guard decl.modifiers.contains(where: { $0.name.text == "final" }) else {
+            return []
+        }
+        
         if let member = member.as(VariableDeclSyntax.self) {
             if try !member.attributes.has(attributeDeclExpression) {
                 return ["@PersistedProperty"]

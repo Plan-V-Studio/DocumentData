@@ -20,8 +20,11 @@ import Observation
 /// }
 /// ```
 ///
-/// When using this model to create DocumentData model, you should provide `init()`
-/// declaration to make sure this class specified declare the initializer.
+/// You can use ``DocumentPersistedModel/default`` to get the current persistent data after the data has been stored once.
+///
+/// ```swift
+/// let information = UserInformation.default
+/// ```
 ///
 /// If you want to ignore some property, attach model ``PersistedIgnored()`` to the property.
 /// DocumentData will not persist ingored property to the storage.
@@ -36,7 +39,8 @@ import Observation
         named(access),
         named(save),
         named(withMutation),
-        named(`default`)
+        named(`default`),
+        named(isPersisted)
 )
 @attached(memberAttribute)
 @attached(extension, conformances: Observable, Codable, DocumentPersistedModel)

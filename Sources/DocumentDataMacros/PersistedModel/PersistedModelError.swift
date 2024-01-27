@@ -40,6 +40,9 @@ enum PersistedModelError: CustomStringConvertible, Error {
     /// This error may occurred when macro required it property declared as a static property.
     case onlyAvailableForStaticProperty
     
+    /// This error may occurred when @PersistedModel attached on a non-final class.
+    case unavailableForNonFinalClass
+    
     var description: String {
         switch self {
         case .unavaliableApplyingType:
@@ -60,6 +63,8 @@ enum PersistedModelError: CustomStringConvertible, Error {
             return "@StorageName only available for \"let\" property."
         case .onlyAvailableForStaticProperty:
             return "@StorageName only available for static property."
+        case .unavailableForNonFinalClass:
+            return "@PersistedModel only available for final class."
         }
     }
 }
