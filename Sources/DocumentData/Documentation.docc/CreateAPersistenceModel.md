@@ -100,7 +100,20 @@ class UserData {
 
 In this case, `requestCount` will never persist, all the information storing in this property will lost.
 
+### Continuous Access to Persistent Data
+
+Every model are comform to ``DocumentPersistedModel``, this protocol provide a method which allow us access the persisted data.
+
+```swift
+let data = UserData.default
+```
+
+``DocumentPersistedModel/default`` can create a model which contain all the datas that persisted. You can access or modify datas.
+
+- Important: Always check whether persisted files are present using the ``DocumentPersistedModel/isPersisted`` method before calling the ``DocumentPersistedModel/default`` method, otherwise the app will stop execution immediately.
+
 ## See Also
 
 - ``PersistedModel()``
 - ``PersistedIgnored()``
+- ``DocumentPersistedModel``

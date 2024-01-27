@@ -116,6 +116,33 @@ internal nonisolated func withMutation<Member, MutationResult>(
 }
 ```
 
+### default
+
+```swift
+static var `default`: Self {
+    let container = Foundation.URL(filePath: Foundation.NSHomeDirectory())
+        .appending(component: "Library")
+        .appending(component: "Application Support")
+        .appending(component: _$persistedDocumentName)
+    let data = try! Data(contentsOf: container)
+    let decoder = Foundation.PropertyListDecoder()
+    return try! decoder.decode(<#CLASS NAME#>.self, from: data)
+}
+```
+
+### isPersisted
+
+```swift
+static var isPersisted: Bool {
+    let container = Foundation.URL(filePath: Foundation.NSHomeDirectory())
+        .appending(component: "Library")
+        .appending(component: "Application Support")
+        .appending(component: _$persistedDocumentName)
+    let fileManager = Foundation.FileManager()
+    return fileManager.fileExists(atPath: container.path(percentEncoded: false))
+}
+```
+
 ## @PersistedProperty Examples
 
 ### init
@@ -151,4 +178,48 @@ set {
 
 ```swift
 var _<#PROPERTY NAME#>: <#PROPERTY TYPE#>
+```
+
+## @PersistedIgnored Examples
+
+### init
+
+```swift
+@storageRestrictions(initializes: _<#PROPERTY NAME#>)
+init {
+    _<#PROPERTY NAME#> = newValue
+}
+```
+
+### get
+
+```swift
+get {
+    access(keyPath: \.<#PROPERTY NAME#>)
+    return _<#PROPERTY NAME#>
+}
+```
+
+### set
+
+```swift
+set {
+    withMutation(keyPath: \.<PROPERTY NAME>) {
+        _<#PROPERTY NAME#> = newValue
+    }
+}
+```
+
+### Peer Property
+
+```swift
+var _<#PROPERTY NAME#>: <#PROPERTY TYPE#>
+```
+
+## @StorageName Examples
+
+### Peer Property
+
+```swift
+@_PersistedIgnored private static let _$persistedDocumentName = "<#Initializer Value#>.storage.plist"
 ```

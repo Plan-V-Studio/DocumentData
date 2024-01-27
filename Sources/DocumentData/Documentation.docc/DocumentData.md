@@ -1,11 +1,18 @@
 # ``DocumentData``
 
-A data persistence library like SwiftData, and persist all the data into Property List Document.
+A data persistence library like SwiftData, can persist all the data into Property List Document.
 
 @Metadata {
     @DisplayName("Document Data")
     @PageColor(yellow)
     @SupportedLanguage(swift)
+    
+    @Available(macOS, introduced: "14.0")
+    @Available(iOS, introduced: "17.0")
+    @Available(watchOS, introduced: "10.0")
+    @Available(tvOS, introduced: "17.0")
+    @Available(macCatalyst, introduced: "17.0")
+    @Available(visionOS, introduced: "1.0")
 }
 
 ## Overview

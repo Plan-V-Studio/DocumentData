@@ -41,3 +41,9 @@ For current property, ``PersistedModel()`` will generate this methods below
 |`set`|<doc:CodeTemplate#set>|
 
 By the way, ``PersistedProperty()`` will also generate a peer property with slash. 
+
+### Expansion of @PersistedIgnored
+
+``PersistedIgnored()`` will make a property observable but not persisted.
+
+The methods will generate are **very similar** with ``PersistedProperty()`` generated, but have no persistece commands. For details, view <doc:CodeTemplate>.
