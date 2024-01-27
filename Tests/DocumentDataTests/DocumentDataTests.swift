@@ -229,7 +229,7 @@ final class DocumentDataTests: XCTestCase {
         throw XCTSkip("macros are only supported when running tests for the host platform")
         #endif
     }
-    
+
     func testStorageNameAppliedOnVariable() throws {
         #if canImport(DocumentDataMacros)
         assertMacroExpansion(
@@ -252,4 +252,3 @@ final class DocumentDataTests: XCTestCase {
         throw XCTSkip("macros are only supported when running tests for the host platform")
         #endif
     }
-}
