@@ -12,7 +12,8 @@ let testMacros: [String: Macro.Type] = [
     "PersistedProperty": PersistedPropertyMacro.self,
     "_PersistedIgnored": PersistedIgnoredMacro.self,
     "StorageName": StorageNameMacro.self,
-    "PersistedIgnored": ObservationPersistedIgnoredMacro.self
+    "PersistedIgnored": ObservationPersistedIgnoredMacro.self,
+    "ModelCodingKey": ModelCodingKeyMacro.self
 ]
 #endif
 
@@ -233,6 +234,37 @@ final class DocumentDataTests: XCTestCase {
                     fixIts: [FixItSpec(message: #"Use "let" instead of "var"."#)]
                 )
             ],
+            macros: testMacros
+        )
+        #else
+        throw XCTSkip("macros are only supported when running tests for the host platform")
+        #endif
+    }
+    
+    func testModelCodingKeyMacroExpansion() throws {
+        #if canImport(DocumentDataMacros)
+        assertMacroExpansion(
+            """
+            @ModelCodingKey
+            enum CodingKeys: String, CodingKey {
+                case string = "DDString"
+                case uuid = "DDUUID"
+                case integer = "DDInteger"
+            }
+            """,
+            expandedSource: """
+            enum CodingKeys: String, CodingKey {
+                case string = "DDString"
+                case uuid = "DDUUID"
+                case integer = "DDInteger"
+            }
+            
+            enum _$PersistedCodingKeys: String, CodingKey {
+                case _string = "DDString"
+                case _uuid = "DDUUID"
+                case _integer = "DDInteger"
+            }
+            """,
             macros: testMacros
         )
         #else
