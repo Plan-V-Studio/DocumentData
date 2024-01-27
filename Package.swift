@@ -41,5 +41,14 @@ let package = Package(
                 .product(name: "SwiftSyntaxMacrosTestSupport", package: "swift-syntax"),
             ]
         ),
+        
+        // A intergration test taget used to test the behavior in actual development environment.
+        .testTarget(
+            name: "DocumentDataIntergrationTests",
+            dependencies: [
+                "DocumentData",
+                .product(name: "SwiftSyntaxMacrosTestSupport", package: "swift-syntax"),
+            ]
+        )
     ]
 )
