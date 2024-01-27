@@ -47,3 +47,8 @@ By the way, ``PersistedProperty()`` will also generate a peer property with slas
 ``PersistedIgnored()`` will make a property observable but not persisted.
 
 The methods will generate are **very similar** with ``PersistedProperty()`` generated, but have no persistece commands. For details, view <doc:CodeTemplate>.
+
+### Expansion of @ModelCodingKey
+
+``ModelCodingKey()`` will generate a `_$PersistedCodingKeys` enumrate property that can replace the default behavior of ``PersistedModel()``'s expansion, 
+and generate a `_$PersistedCodingKeys` property which based on user's customize.

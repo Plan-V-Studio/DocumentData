@@ -41,3 +41,4 @@ of your application Container.
 ### Customize Your Model
 
 - ``StorageName()``
+- ``ModelCodingKey()``
