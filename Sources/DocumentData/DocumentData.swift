@@ -82,10 +82,11 @@ public macro _PersistedIgnored() = #externalMacro(module: "DocumentDataMacros", 
 /// class UserScheme {
 ///     // persisted properties
 ///     @StorageName
-///     var storageName = "Default"
+///     static let storageName = "Default"
 /// }
 /// ```
-/// - Important: Nevery initialize this value, because the initial value will not change this persistence file name. For more detail, see <doc:HowCanPersistenceFileWork>
+/// - Important: Never initialize this value, because the initial value will not change this persistence file name. For more detail, see <doc:HowCanPersistenceFileWork>
+/// - Warning: ``StorageName()`` can only applied on `static let` property.
 ///
 @attached(peer, names: named(_$persistedDocumentName))
 public macro StorageName() = #externalMacro(module: "DocumentDataMacros", type: "StorageNameMacro")

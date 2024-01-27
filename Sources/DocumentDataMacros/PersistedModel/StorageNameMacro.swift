@@ -9,6 +9,7 @@ import SwiftCompilerPlugin
 import SwiftSyntax
 import SwiftSyntaxBuilder
 import SwiftSyntaxMacros
+import SwiftDiagnostics
 
 public struct StorageNameMacro { }
 
@@ -18,26 +19,60 @@ extension StorageNameMacro: PeerMacro {
         providingPeersOf declaration: some DeclSyntaxProtocol,
         in context: some MacroExpansionContext
     ) throws -> [DeclSyntax] {
+        var isErrorOccurred = false
         guard let decl = declaration.as(VariableDeclSyntax.self) else {
             throw PersistedModelError.incorrectSyntaxStructure(declaration, VariableDeclSyntax.self)
         }
         
-        guard decl.bindingSpecifier.text == "let" else {
-            throw PersistedModelError.onlyAvailableForConstant
+        // check the "let" keyword
+        // compatiable for fix-it
+        if decl.bindingSpecifier.text != "let" {
+            isErrorOccurred = true
+            context.diagnose(
+                Diagnostic(
+                    node: decl.bindingSpecifier,
+                    message: DiagMsg(
+                        message: String(describing: PersistedModelError.onlyAvailableForConstant),
+                        diagnosticID: MessageID(domain: "DocumentData", id: "Error.onlyAvailableForConstant"),
+                        severity: .error
+                    ),
+                    fixIt: FixIt(
+                        message: FixitMsg(
+                            message: #"Use "let" instead of "var"."#,
+                            fixItID: MessageID(domain: "DocumentData", id: "Fixit.onlyAvailableForConstant")
+                        ),
+                        changes: [
+                            .replace(
+                                oldNode: Syntax(decl.bindingSpecifier), newNode: Syntax(TokenSyntax(stringLiteral: "let"))
+                            )
+                        ]
+                    )
+                )
+            )
         }
         
-        guard decl.modifiers.contains(where: { $0.name.text == "static" }) else {
-            throw PersistedModelError.onlyAvailableForStaticProperty
+        // check the "static" keyword
+        if !decl.modifiers.contains(where: { $0.name.text == "static" }) {
+            isErrorOccurred = true
+            context.addDiagnostics(
+                from: PersistedModelError.onlyAvailableForStaticProperty,
+                node: decl.modifiers
+            )
         }
         
         guard let initializer = decl.bindings.first?.as(PatternBindingSyntax.self)?.initializer else {
-            throw PersistedModelError.storageNoInitializer
+            context.addDiagnostics(from: PersistedModelError.storageNoInitializer, node: decl.bindings)
+            return []
         }
         
-        return [
+        if !isErrorOccurred {
+            return [
             """
             @_PersistedIgnored private static let _$persistedDocumentName = "\(raw: initializer.value.as(StringLiteralExprSyntax.self)!.segments.description).storage.plist"
             """
-        ]
+            ]
+        } else {
+            return []
+        }
     }
 }
