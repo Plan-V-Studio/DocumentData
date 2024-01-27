@@ -13,10 +13,6 @@ let package = Package(
             name: "DocumentData",
             targets: ["DocumentData"]
         ),
-        .executable(
-            name: "DocumentDataClient",
-            targets: ["DocumentDataClient"]
-        ),
     ],
     dependencies: [
         // Depend on the Swift 5.9 release of SwiftSyntax
@@ -37,9 +33,6 @@ let package = Package(
         // Library that exposes a macro as part of its API, which is used in client programs.
         .target(name: "DocumentData", dependencies: ["DocumentDataMacros"]),
 
-        // A client of the library, which is able to use the macro in its own code.
-        .executableTarget(name: "DocumentDataClient", dependencies: ["DocumentData"]),
-
         // A test target used to develop the macro implementation.
         .testTarget(
             name: "DocumentDataTests",
@@ -48,5 +41,14 @@ let package = Package(
                 .product(name: "SwiftSyntaxMacrosTestSupport", package: "swift-syntax"),
             ]
         ),
+        
+        // A intergration test taget used to test the behavior in actual development environment.
+        .testTarget(
+            name: "DocumentDataIntergrationTests",
+            dependencies: [
+                "DocumentData",
+                .product(name: "SwiftSyntaxMacrosTestSupport", package: "swift-syntax"),
+            ]
+        )
     ]
 )
