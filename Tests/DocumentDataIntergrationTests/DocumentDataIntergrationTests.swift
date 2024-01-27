@@ -66,6 +66,18 @@ final class TestClass {
     @PersistedIgnored
     var ignored: String
     
+    @ModelCodingKey
+    enum CodingKeys: String, CodingKey {
+        case number = "N"
+        case string = "S"
+        case bool = "B"
+        case data = "D"
+        case uuid = "U"
+        case array = "A"
+        case dict = "I"
+        case anyCodable = "E"
+    }
+    
     init(number: Int, string: String, bool: Bool, data: Data, uuid: UUID, array: [String], dict: [String : UUID], anyCodable: AnyCodable, ignored: String) {
         self.number = number
         self.string = string

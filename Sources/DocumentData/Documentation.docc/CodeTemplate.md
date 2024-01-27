@@ -223,3 +223,14 @@ var _<#PROPERTY NAME#>: <#PROPERTY TYPE#>
 ```swift
 @_PersistedIgnored private static let _$persistedDocumentName = "<#Initializer Value#>.storage.plist"
 ```
+
+## @ModelCodingKey Examples
+
+### Peer Property
+
+```swift
+enum _$PersistedCodingKeys: String, Codable {
+    case _<#PROPERTY NAME#> = <#CUSTOM NAME#>
+    ...
+}
+```

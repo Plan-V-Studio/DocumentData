@@ -96,3 +96,46 @@ public macro _PersistedIgnored() = #externalMacro(module: "DocumentDataMacros", 
 @attached(peer, names: named(_$persistedDocumentName))
 public macro StorageName() = #externalMacro(module: "DocumentDataMacros", type: "StorageNameMacro")
 
+/// Make current property as the coding keys fo persistence file.
+///
+/// This macro allow you customize the default coding keys. This is a example for model names with `UserProfile`.
+///
+/// ```swift
+/// @PersistedModel
+/// final class UserProfile {
+///     var username: String
+///     var password: Data
+/// }
+/// ```
+///
+/// The default coding key should be like this:
+///
+/// ```swift
+/// enum _$PersistedCodingKeys: String, CodingKey {
+///     case _username = "username"
+///     case _password = "password"
+/// }
+/// ```
+///
+/// Use `@ModelCodingKey` can mutate the default behavior. To reach this,
+/// developer should provide a coding key enumrator with the name **has no underline (`_`)**.
+///
+/// ```swift
+/// @ModelCodingKey
+/// enum CustomizeCodingKey: String, CodingKey {
+///     case username = "FILUsername"
+///     case password = "USRPassword"
+/// }
+/// ```
+///
+/// Macro will help you take care of the rest.
+///
+/// - Important: Always make sure that every property is included in the custom CodingKey.
+///
+/// Some property should not contains in your customize coding key:
+/// - Customize file name (`@StorageName`)
+/// - `@PersistedIgnored` properties
+///
+/// - Warning: Any of the above properties exist in custom coding key may cause unexpected errors.
+@attached(peer, names: named(_$PersistedCodingKeys))
+public macro ModelCodingKey() = #externalMacro(module: "DocumentDataMacros", type: "ModelCodingKeyMacro")
