@@ -72,16 +72,11 @@ extension PersistedModelMacro: MemberMacro {
             // access
             """
             func access<T>(_ keyPath: KeyPath<\(raw: decl.name.text), T>) -> T where T: Codable {
-                let container = Foundation.URL(filePath: Foundation.NSHomeDirectory())
-                    .appending(component: "Library")
-                    .appending(component: "Application Support")
-                    .appending(component: Self._$persistedDocumentName)
-            
-                if !Foundation.FileManager.default.fileExists(atPath: container.path(percentEncoded: false)) {
+                if !Foundation.FileManager.default.fileExists(atPath: Self.url.path(percentEncoded: false)) {
                     self.save()
                 }
                 
-                let data = try! Data(contentsOf: container)
+                let data = try! Data(contentsOf: Self.url)
                 
                 let decoder = Foundation.PropertyListDecoder()
                 
@@ -93,16 +88,11 @@ extension PersistedModelMacro: MemberMacro {
             // save
             """
             func save() {
-                let container = Foundation.URL(filePath: NSHomeDirectory())
-                    .appending(component: "Library")
-                    .appending(component: "Application Support")
-                    .appending(component: Self._$persistedDocumentName)
-            
                 let encoder = PropertyListEncoder()
                 encoder.outputFormat = .binary
                 
                 let encoded = try! encoder.encode(self)
-                try! encoded.write(to: container)
+                try! encoded.write(to: Self.url)
             }
             """,
             
@@ -128,11 +118,7 @@ extension PersistedModelMacro: MemberMacro {
             // default: DocumentPersistedModel
             """
             static var `default`: \(raw: decl.name.text) {
-                let container = Foundation.URL(filePath: Foundation.NSHomeDirectory())
-                    .appending(component: "Library")
-                    .appending(component: "Application Support")
-                    .appending(component: _$persistedDocumentName)
-                let data = try! Data(contentsOf: container)
+                let data = try! Data(contentsOf: Self.url)
                 let decoder = Foundation.PropertyListDecoder()
                 return try! decoder.decode(\(raw: decl.name.text).self, from: data)
             }
@@ -141,12 +127,16 @@ extension PersistedModelMacro: MemberMacro {
             // isPersisted: DocumentPersistedModel
             """
             static var isPersisted: Bool {
-                let container = Foundation.URL(filePath: Foundation.NSHomeDirectory())
-                    .appending(component: "Library")
-                    .appending(component: "Application Support")
-                    .appending(component: _$persistedDocumentName)
                 let fileManager = Foundation.FileManager()
-                return fileManager.fileExists(atPath: container.path(percentEncoded: false))
+                return fileManager.fileExists(atPath: Self.url.path(percentEncoded: false))
+            }
+            """,
+            
+            // url
+            """
+            static var url: URL {
+                Foundation.URL(filePath: Foundation.NSHomeDirectory())
+                    .appending(components: "Library", "Application Support", _$persistedDocumentName)
             }
             """,
         ]
