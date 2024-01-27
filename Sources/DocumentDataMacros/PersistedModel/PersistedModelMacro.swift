@@ -39,6 +39,15 @@ extension PersistedModelMacro: MemberMacro {
             """)
         }
         
+        // CodingKeys
+        if try !members.contains(where: assertCustomCodingKey) {
+            result.append("""
+            enum _$PersistedCodingKeys: String, CodingKey {
+            \(raw: try generatePersistedCodingKeys(members))
+            }
+            """)
+        }
+        
         result += [
             // Observable
             """
@@ -59,13 +68,6 @@ extension PersistedModelMacro: MemberMacro {
             required init(from decoder: Decoder) throws {
                 let container = try decoder.container(keyedBy: _$PersistedCodingKeys.self)
             \(raw: try generateDecodableContentFunction(members))
-            }
-            """,
-            
-            // CodingKeys
-            """
-            enum _$PersistedCodingKeys: String, CodingKey {
-            \(raw: try generatePersistedCodingKeys(members))
             }
             """,
             
@@ -147,6 +149,20 @@ extension PersistedModelMacro: MemberMacro {
     private static func attributeDeclDocumentName(_ element: MemberBlockItemListSyntax.Element) throws -> Bool {
         if let variable = element.decl.as(VariableDeclSyntax.self) {
             if try variable.attributes.contains(where: attributeDeclDocumentExpression) {
+                return true
+            }
+        }
+        return false
+    }
+    
+    private static func assertCustomCodingKey(_ element: MemberBlockItemListSyntax.Element) throws -> Bool {
+        if let variable = element.decl.as(EnumDeclSyntax.self) {
+            if try variable.attributes.contains(where: { attr in
+                guard let decl = attr.as(AttributeSyntax.self) else {
+                    throw PersistedModelError.incorrectPropertyAttributeStructure
+                }
+                return decl.attributeName.description == "ModelCodingKey"
+            }) {
                 return true
             }
         }

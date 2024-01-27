@@ -16,5 +16,6 @@ struct DocumentDataPlugin: CompilerPlugin {
         PersistedIgnoredMacro.self,
         ObservationPersistedIgnoredMacro.self,
         StorageNameMacro.self,
+        ModelCodingKeyMacro.self,
     ]
 }
