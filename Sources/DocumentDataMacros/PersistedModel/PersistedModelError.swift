@@ -43,6 +43,15 @@ enum PersistedModelError: CustomStringConvertible, Error {
     /// This error may occurred when @PersistedModel attached on a non-final class.
     case unavailableForNonFinalClass
     
+    /// This error may occurred when macro only available for enumrate.
+    case onlyAvailableForEnum
+    
+    /// This error may occurred when macro cannot find inheretance clause.
+    case cannotFindInheritanceClause
+    
+    /// This error may occurred when @ModelCodingKey applied enum not conforms to CodingKey.
+    case notConformsToCodingKey
+    
     var description: String {
         switch self {
         case .unavaliableApplyingType:
@@ -65,6 +74,12 @@ enum PersistedModelError: CustomStringConvertible, Error {
             return "@StorageName only available for static property."
         case .unavailableForNonFinalClass:
             return "@PersistedModel only available for final class."
+        case .onlyAvailableForEnum:
+            return "@ModelCodingKey can only applied on enumrate property."
+        case .cannotFindInheritanceClause:
+            return "Cannot find inheritance clause."
+        case .notConformsToCodingKey:
+            return "This enum does not conforms to CodingKey."
         }
     }
 }

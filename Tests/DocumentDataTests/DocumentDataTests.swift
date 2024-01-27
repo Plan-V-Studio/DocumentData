@@ -325,4 +325,24 @@ final class DocumentDataTests: XCTestCase {
         throw XCTSkip("macros are only supported when running tests for the host platform")
         #endif
     }
+    
+    func testModelCodingKeyNotConform() throws {
+        #if canImport(DocumentDataMacros)
+        assertMacroExpansion(
+            """
+            @ModelCodingKey
+            enum CodingKeys: String { }
+            """,
+            expandedSource: """
+            enum CodingKeys: String { }
+            """,
+            diagnostics: [
+                DiagnosticSpec(message: "This enum does not conforms to CodingKey.", line: 1, column: 1)
+            ],
+            macros: testMacros
+        )
+        #else
+        throw XCTSkip("macros are only supported when running tests for the host platform")
+        #endif
+    }
 }

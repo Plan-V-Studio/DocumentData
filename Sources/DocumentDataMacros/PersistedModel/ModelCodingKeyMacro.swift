@@ -18,21 +18,17 @@ extension ModelCodingKeyMacro: PeerMacro {
         providingPeersOf declaration: some DeclSyntaxProtocol,
         in context: some MacroExpansionContext
     ) throws -> [DeclSyntax] {
-        // TODO: Implementation
         guard let decl = declaration.as(EnumDeclSyntax.self) else {
-            // TODO: Error handling
-            return []
+            throw PersistedModelError.onlyAvailableForEnum
         }
         
         guard let inheritanceClause = decl.inheritanceClause else {
-            // TODO: Error handling
-            return []
+            throw PersistedModelError.cannotFindInheritanceClause
         }
         
-        // check whether the enum comforms to CodingKey
+        // check whether the enum conforms to CodingKey
         guard inheritanceClause.inheritedTypes.contains(where: { $0.type.as(IdentifierTypeSyntax.self)?.name.text == "CodingKey" }) else {
-            // TODO: Error handling
-            return []
+            throw PersistedModelError.notConformsToCodingKey
         }
         
         let members = decl.memberBlock.members
@@ -53,7 +49,6 @@ extension ModelCodingKeyMacro: PeerMacro {
         // extract key and name from syntax
         try members.forEach {
             guard let enumCase = $0.decl.as(EnumCaseDeclSyntax.self) else {
-                // TODO: Error handling
                 throw PersistedModelError.errorOccurredWhileExpanding(functionName: "memberTranslator")
             }
             
