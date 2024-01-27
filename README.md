@@ -1,8 +1,9 @@
 # Document Data
 
-![Swift Package Manager](https://img.shields.io/badge/Swift_Package_Manager-compatible-orange)
+![Swift Version](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2FPlan-V-Studio%2FDocumentData%2Fbadge%3Ftype%3Dswift-versions)
+![Compatible Platforms](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2FPlan-V-Studio%2FDocumentData%2Fbadge%3Ftype%3Dplatforms)
+
 ![GitHub License](https://img.shields.io/github/license/Plan-V-Studio/DocumentData)
-![Compatible Platforms](https://img.shields.io/badge/Supported_Platform-iOS_17%2B_%7C_macOS_14%2B_%7C_tvOS_17%2B_%7C_watchOS_10%2B_%7C_visionOS_1%2B-blue)
 ![GitHub Release](https://img.shields.io/github/v/release/Plan-V-Studio/DocumentData)
 
 
