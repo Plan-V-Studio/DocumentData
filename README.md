@@ -1,7 +1,7 @@
 # Document Data
 
-![Swift Version](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2FPlan-V-Studio%2FDocumentData%2Fbadge%3Ftype%3Dswift-versions)
-![Compatible Platforms](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2FPlan-V-Studio%2FDocumentData%2Fbadge%3Ftype%3Dplatforms)
+[![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2FPlan-V-Studio%2FDocumentData%2Fbadge%3Ftype%3Dswift-versions)](https://swiftpackageindex.com/Plan-V-Studio/DocumentData)
+[![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2FPlan-V-Studio%2FDocumentData%2Fbadge%3Ftype%3Dplatforms)](https://swiftpackageindex.com/Plan-V-Studio/DocumentData)
 
 ![GitHub License](https://img.shields.io/github/license/Plan-V-Studio/DocumentData)
 ![GitHub Release](https://img.shields.io/github/v/release/Plan-V-Studio/DocumentData)
