@@ -41,7 +41,7 @@ final class DocumentDataIntergrationTests: XCTestCase {
             throw XCTSkip("The persistent file does not exist, please run testCreate() first.")
         }
         
-        var data = TestClass.default
+        let data = TestClass.default
         data.string = "Bonjour!"
         
         XCTAssertEqual(TestClass.default.string, "Bonjour!")
