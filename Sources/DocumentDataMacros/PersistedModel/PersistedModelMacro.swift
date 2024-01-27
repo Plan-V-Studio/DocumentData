@@ -33,7 +33,7 @@ extension PersistedModelMacro: MemberMacro {
         var result = [DeclSyntax]()
         
         // assert _$persistedDocumentName
-        if try !members.has(attributeDeclDocumentName) {
+        if try !members.contains(where: attributeDeclDocumentName) {
             result.append("""
             private static let _$persistedDocumentName = "\(raw: decl.name.text).storage.plist"
             """)
@@ -146,7 +146,7 @@ extension PersistedModelMacro: MemberMacro {
     
     private static func attributeDeclDocumentName(_ element: MemberBlockItemListSyntax.Element) throws -> Bool {
         if let variable = element.decl.as(VariableDeclSyntax.self) {
-            if try variable.attributes.has(attributeDeclDocumentExpression) {
+            if try variable.attributes.contains(where: attributeDeclDocumentExpression) {
                 return true
             }
         }
@@ -165,7 +165,7 @@ extension PersistedModelMacro: MemberMacro {
         var expansion = [String]()
         for item in members {
             if let decl = item.decl.as(VariableDeclSyntax.self) {
-                if try !decl.attributes.has(attributeDeclExpression) {
+                if try !decl.attributes.contains(where: attributeDeclExpression) {
                     expansion.append("    try container.encode(_\(decl.bindings.first!.pattern.description), forKey: ._\(decl.bindings.first!.pattern.description))")
                 }
             }
@@ -177,7 +177,7 @@ extension PersistedModelMacro: MemberMacro {
         var expansion = [String]()
         for item in members {
             if let decl = item.decl.as(VariableDeclSyntax.self) {
-                if try !decl.attributes.has(attributeDeclExpression) {
+                if try !decl.attributes.contains(where: attributeDeclExpression) {
                     expansion.append(
                         "    self._\(decl.bindings.first!.pattern.description) = try container.decode(\(decl.bindings.first!.typeAnnotation!.type.description).self, forKey: ._\(decl.bindings.first!.pattern.description))"
                     )
@@ -197,7 +197,7 @@ extension PersistedModelMacro: MemberMacro {
         var expansion = [String]()
         for item in members {
             if let decl = item.decl.as(VariableDeclSyntax.self) {
-                if try !decl.attributes.has(attributeDeclExpression) {
+                if try !decl.attributes.contains(where: attributeDeclExpression) {
                     expansion.append(
                         "    case _\(decl.bindings.first!.pattern.description) = \"\(decl.bindings.first!.pattern.description)\""
                     )
@@ -260,7 +260,7 @@ extension PersistedModelMacro: MemberAttributeMacro {
         }
         
         if let member = member.as(VariableDeclSyntax.self) {
-            if try !member.attributes.has(attributeDeclExpression) {
+            if try !member.attributes.contains(where: attributeDeclExpression) {
                 return ["@PersistedProperty"]
             } else {
                 return []
@@ -280,43 +280,5 @@ extension PersistedModelMacro {
         let description = decl.attributeName.as(IdentifierTypeSyntax.self)?.description
         
         return description == "PersistedIgnored" || description == "StorageName" || description == "ObservablePersistedIgnored"
-    }
-}
-
-extension Collection {
-    /// Finds if the current sequence meets the condition.
-    /// 
-    /// When using this function, you need to specify the condition you are thinking of. Then write a boolean expression in the closure.
-    ///
-    /// This is an example of using this function.
-    /// ``` swift
-    /// let fruits = [
-    ///     "apple: red",
-    ///     "banana: yellow",
-    ///     "orange: orange",
-    ///     "strawberry: red",
-    ///     "mango: yellow",
-    ///     "hawthorn: red",
-    /// ]
-    ///
-    /// // this code will return false because no white fruits was provided.
-    /// fruits.has { fruit in
-    ///     fruit.contains("white")
-    /// }
-    ///
-    /// // this code will return true because we have red fruits in the collection.
-    /// fruits.has { fruit in
-    ///     fruit.contains("red")
-    /// }
-    /// ```
-    /// - Parameter expression: Condition expression.
-    /// - Returns: `true` for have the folloing expression, otherwise, return `false`.
-    func has(_ expression: (_ element: Element) throws -> Bool) rethrows -> Bool {
-        for item in self {
-            if try expression(item) {
-                return true
-            }
-        }
-        return false
     }
 }
