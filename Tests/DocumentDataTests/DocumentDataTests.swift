@@ -241,7 +241,7 @@ final class DocumentDataTests: XCTestCase {
         #endif
     }
     
-    func testModelCodingKeyMacroExpansion() throws {
+    func testModelCodingKeyMacroExpansionWithEachLineOne() throws {
         #if canImport(DocumentDataMacros)
         assertMacroExpansion(
             """
@@ -263,6 +263,60 @@ final class DocumentDataTests: XCTestCase {
                 case _string = "DDString"
                 case _uuid = "DDUUID"
                 case _integer = "DDInteger"
+            }
+            """,
+            macros: testMacros
+        )
+        #else
+        throw XCTSkip("macros are only supported when running tests for the host platform")
+        #endif
+    }
+    
+    func testModelCodingKeyMacroExpansionWithEachLineMany() throws {
+        #if canImport(DocumentDataMacros)
+        assertMacroExpansion(
+            """
+            @ModelCodingKey
+            enum CodingKeys: String, CodingKey {
+                case string = "DDString", uuid = "DDUUID", integer = "DDInteger"
+            }
+            """,
+            expandedSource: """
+            enum CodingKeys: String, CodingKey {
+                case string = "DDString", uuid = "DDUUID", integer = "DDInteger"
+            }
+            
+            enum _$PersistedCodingKeys: String, CodingKey {
+                case _string = "DDString"
+                case _uuid = "DDUUID"
+                case _integer = "DDInteger"
+            }
+            """,
+            macros: testMacros
+        )
+        #else
+        throw XCTSkip("macros are only supported when running tests for the host platform")
+        #endif
+    }
+    
+    func testModelCodingKeyMacroExpansionInIntKey() throws {
+        #if canImport(DocumentDataMacros)
+        assertMacroExpansion(
+            """
+            @ModelCodingKey
+            enum CodingKeys: Int, CodingKey {
+                case string = 1, uuid = 2, integer = 3
+            }
+            """,
+            expandedSource: """
+            enum CodingKeys: Int, CodingKey {
+                case string = 1, uuid = 2, integer = 3
+            }
+            
+            enum _$PersistedCodingKeys: Int, CodingKey {
+                case _string = 1
+                case _uuid = 2
+                case _integer = 3
             }
             """,
             macros: testMacros
