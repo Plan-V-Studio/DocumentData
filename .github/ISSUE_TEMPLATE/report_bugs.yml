@@ -24,8 +24,8 @@ body:
         - Code Behavior
         - Documentation
         - Compatibility
-      validations:
-        required: true
+    validations:
+      required: true
   - type: textarea
     id: process
     attributes:
@@ -35,8 +35,8 @@ body:
         1. ...
         2. ...
         3. ...
-      validations:
-        required: true
+    validations:
+      required: true
   - type: textarea
     id: code
     attributes:
@@ -48,7 +48,7 @@ body:
     attributes:
       label: Expcetion
       description: Please paste the exception thrown by the compiler here.
-      validations:
-        required: true
+    validations:
+      required: true
       
         
