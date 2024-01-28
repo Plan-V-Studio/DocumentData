@@ -140,3 +140,6 @@ public macro StorageName() = #externalMacro(module: "DocumentDataMacros", type: 
 /// - Warning: Any of the above properties exist in custom coding key may cause unexpected errors.
 @attached(peer, names: named(_$PersistedCodingKeys))
 public macro ModelCodingKey() = #externalMacro(module: "DocumentDataMacros", type: "ModelCodingKeyMacro")
+
+@attached(peer, names: named(_$OldCodingKeys), named(migrate))
+public macro Migration() = #externalMacro(module: "DocumentDataMacros", type: "MigrationMacro")
