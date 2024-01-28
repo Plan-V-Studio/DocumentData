@@ -11,9 +11,7 @@ import XCTest
 final class DocumentDataIntergrationTests: XCTestCase {
     func testCreate() throws {
         if TestClass.isPersisted {
-            let url = URL(filePath: NSHomeDirectory()).appending(components: "Library", "Application Support", "\(TestClass.name).storage.plist")
-            print(url.path(percentEncoded: false))
-            throw XCTSkip("The persistent file already exists. Please remove it manually.")
+            try TestClass.delete()
         }
         
         let testCase = TestClass(
@@ -37,8 +35,8 @@ final class DocumentDataIntergrationTests: XCTestCase {
     }
     
     func testChangeValue() throws {
-        guard TestClass.isPersisted else {
-            throw XCTSkip("The persistent file does not exist, please run testCreate() first.")
+        if !TestClass.isPersisted {
+            try testCreate()
         }
         
         let data = TestClass.default
@@ -48,8 +46,8 @@ final class DocumentDataIntergrationTests: XCTestCase {
     }
     
     func testDelete() throws {
-        guard TestClass.isPersisted else {
-            throw XCTSkip("The persistent file does not exist, please run testCreate() first.")
+        if !TestClass.isPersisted {
+            try testCreate()
         }
         
         try TestClass.delete()
