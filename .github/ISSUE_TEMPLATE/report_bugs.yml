@@ -1,0 +1,54 @@
+name: Bug Report
+description: Give feedback on the bug you encounter.
+title: "<BUG>: "
+label: ["bug", "traige"]
+body:
+  - type: markdown
+    attributes:
+      values: "## Thank you for telling us about the bugs that you encounte."
+  - type: input
+    id: brief
+    attributes:
+      label: Bug Description
+      description: Please briefly describe the bug you encountered.
+      placeholder: I met a ... bug when I ...
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Bug Area
+      description: Where did you encounter the problem?
+      options:
+        - Macro Expansion
+        - Code Behavior
+        - Documentation
+        - Compatibility
+      validations:
+        required: true
+  - type: textarea
+    id: process
+    attributes:
+      label: Reproduction Steps
+      description: Write down the steps to reproduce the problem.
+      placeholder: |
+        1. ...
+        2. ...
+        3. ...
+      validations:
+        required: true
+  - type: textarea
+    id: code
+    attributes:
+      label: Problematic Code
+      description: Can you paste the offending code here? Make sure it has the DocumentData API.
+      render: swift
+  - type: textarea
+    id: expcetion
+    attributes:
+      label: Expcetion
+      description: Please paste the exception thrown by the compiler here.
+      validations:
+        required: true
+      
+        
