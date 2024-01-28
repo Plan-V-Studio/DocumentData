@@ -639,11 +639,6 @@ final class DocumentDataTests: XCTestCase {
                 private enum OldKeys: String, CodingKey {
                     case isFirstToggleOpen, textFieldText
                 }
-
-                enum _$OldCodingKeys: String, CodingKey {
-                    case _isFirstToggleOpen = "isFirstToggleOpen"
-                    case _textFieldText = "textFieldText"
-                }
                 
                 init(isFirstToggleOpen: Bool, textFieldText: String) {
                     self.isFirstToggleOpen = isFirstToggleOpen
@@ -653,16 +648,27 @@ final class DocumentDataTests: XCTestCase {
                 private static let _$persistedDocumentName = "StoringData.storage.plist"
 
                 static func migrate() {
+                    let data = try! Data(contentsOf: Self.url)
+
+                    let decoder = Foundation.PropertyListDecoder()
+                    let old = try! decoder.decode(_$MigrationMiddleware.self, from: data)
+                    let encoder = Foundation.PropertyListEncoder()
+                    let new = try! encoder.encode(old)
+                    try! new.write(to: url)
+                }
+
+                static var shouldMigrate: Bool {
                     do {
                         let data = try Data(contentsOf: Self.url)
 
                         let decoder = Foundation.PropertyListDecoder()
-                        let old = try decoder.decode(_$MigrationMiddleware.self, from: data)
-                        let encoder = Foundation.PropertyListEncoder()
-                        let new = try encoder.encode(old)
-                        try new.write(to: url)
+                        _ = try decoder.decode(_$MigrationMiddleware.self, from: data)
+
+                        return true
+                    } catch DecodingError.keyNotFound {
+                        return true
                     } catch {
-                        print(error)
+                        return false
                     }
                 }
                 private final class _$MigrationMiddleware {
@@ -770,6 +776,9 @@ final class DocumentDataTests: XCTestCase {
             }
 
             extension _$MigrationMiddleware: Codable {
+            }
+
+            extension StoringData: DocumentData.Migratable {
             }
 
             extension StoringData: Observation.Observable {

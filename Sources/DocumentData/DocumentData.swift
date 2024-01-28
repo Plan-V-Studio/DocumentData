@@ -144,7 +144,7 @@ public macro StorageName() = #externalMacro(module: "DocumentDataMacros", type: 
 @attached(peer, names: named(_$PersistedCodingKeys))
 public macro ModelCodingKey() = #externalMacro(module: "DocumentDataMacros", type: "ModelCodingKeyMacro")
 
-@attached(peer, names: named(_$OldCodingKeys))
+@attached(peer)
 public macro Migration() = #externalMacro(module: "DocumentDataMacros", type: "MigrationMacro")
 
 @attached(member, names: named(init), named(encode))

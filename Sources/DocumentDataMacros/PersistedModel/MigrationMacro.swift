@@ -31,37 +31,7 @@ extension MigrationMacro: PeerMacro {
             throw PersistedModelError.notConformsToCodingKey
         }
         
-        let members = decl.memberBlock.members
         
-        
-        return [
-            """
-            enum _$OldCodingKeys\(raw: inheritanceClause.description){
-            \(raw: try memberTranslator(members))
-            }
-            """
-        ]
-    }
-    
-    private static func memberTranslator(_ members: MemberBlockItemListSyntax) throws -> String {
-        var result = [String]()
-        
-        // extract key and name from syntax
-        try members.forEach {
-            guard let enumCase = $0.decl.as(EnumCaseDeclSyntax.self) else {
-                throw PersistedModelError.errorOccurredWhileExpanding(functionName: "memberTranslator")
-            }
-            
-            enumCase.elements.forEach { caseElement in
-                let literalExpr = caseElement.rawValue?.value.description
-                
-                result.append(
-                    "case _\(caseElement.name.text) = \(literalExpr ?? "\"\(caseElement.name.text)\"")"
-                )
-            }
-        }
-        
-        result = result.map { "    " + $0 }
-        return result.joined(separator: "\n")
+        return []
     }
 }
