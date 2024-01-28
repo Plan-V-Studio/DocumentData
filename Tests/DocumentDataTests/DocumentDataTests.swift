@@ -13,7 +13,8 @@ let testMacros: [String: Macro.Type] = [
     "_PersistedIgnored": PersistedIgnoredMacro.self,
     "StorageName": StorageNameMacro.self,
     "PersistedIgnored": ObservationPersistedIgnoredMacro.self,
-    "ModelCodingKey": ModelCodingKeyMacro.self
+    "ModelCodingKey": ModelCodingKeyMacro.self,
+    "Migration": MigrationMacro.self,
 ]
 #endif
 
@@ -522,6 +523,37 @@ final class DocumentDataTests: XCTestCase {
             extension StoringData: DocumentData.DocumentPersistedModel {
             }
             """#,
+            macros: testMacros
+        )
+        #else
+        throw XCTSkip("macros are only supported when running tests for the host platform")
+        #endif
+    }
+    
+    func testMigrationExpansion() throws {
+        #if canImport(DocumentDataMacros)
+        assertMacroExpansion(
+            """
+            @Migration
+            enum MigrationKeys: String, CodingKey {
+                case string
+                case uuid
+                case integer
+            }
+            """,
+            expandedSource: """
+            enum MigrationKeys: String, CodingKey {
+                case string
+                case uuid
+                case integer
+            }
+            
+            enum _$OldCodingKeys: String, CodingKey {
+                case _string = "string"
+                case _uuid = "uuid"
+                case _integer = "integer"
+            }
+            """,
             macros: testMacros
         )
         #else

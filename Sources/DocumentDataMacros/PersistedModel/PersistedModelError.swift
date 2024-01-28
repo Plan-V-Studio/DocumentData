@@ -44,7 +44,7 @@ enum PersistedModelError: CustomStringConvertible, Error {
     case unavailableForNonFinalClass
     
     /// This error may occurred when macro only available for enumrate.
-    case onlyAvailableForEnum
+    case onlyAvailableForEnum(macroName: String)
     
     /// This error may occurred when macro cannot find inheretance clause.
     case cannotFindInheritanceClause
@@ -74,8 +74,8 @@ enum PersistedModelError: CustomStringConvertible, Error {
             return "@StorageName only available for static property."
         case .unavailableForNonFinalClass:
             return "@PersistedModel only available for final class."
-        case .onlyAvailableForEnum:
-            return "@ModelCodingKey can only applied on enumrate property."
+        case .onlyAvailableForEnum(let name):
+            return "@\(name) can only applied on enumrate property."
         case .cannotFindInheritanceClause:
             return "Cannot find inheritance clause."
         case .notConformsToCodingKey:

@@ -42,7 +42,8 @@ import Observation
         named(`default`),
         named(isPersisted),
         named(url),
-        named(delete)
+        named(delete),
+        named(migrate)
 )
 @attached(memberAttribute)
 @attached(extension, conformances: Observable, Codable, DocumentPersistedModel)
@@ -141,5 +142,5 @@ public macro StorageName() = #externalMacro(module: "DocumentDataMacros", type: 
 @attached(peer, names: named(_$PersistedCodingKeys))
 public macro ModelCodingKey() = #externalMacro(module: "DocumentDataMacros", type: "ModelCodingKeyMacro")
 
-@attached(peer, names: named(_$OldCodingKeys), named(migrate))
+@attached(peer, names: named(_$OldCodingKeys))
 public macro Migration() = #externalMacro(module: "DocumentDataMacros", type: "MigrationMacro")
