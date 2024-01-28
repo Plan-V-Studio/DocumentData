@@ -20,4 +20,7 @@ public protocol DocumentPersistedModel: AnyObject {
     
     /// Check whether the data is persisted.
     static var isPersisted: Bool { get }
+    
+    /// Delete the persistence file from storage.
+    static func delete() throws
 }

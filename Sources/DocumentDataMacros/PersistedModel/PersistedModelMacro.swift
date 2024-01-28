@@ -9,6 +9,7 @@ import SwiftCompilerPlugin
 import SwiftSyntax
 import SwiftSyntaxBuilder
 import SwiftSyntaxMacros
+import Foundation
 
 public struct PersistedModelMacro { }
 
@@ -141,6 +142,14 @@ extension PersistedModelMacro: MemberMacro {
                     .appending(components: "Library", "Application Support", _$persistedDocumentName)
             }
             """,
+            
+            // delete
+            """
+            static func delete() throws {
+                let fileManager = Foundation.FileManager()
+                try fileManager.removeItem(at: url)
+            }
+            """
         ]
         
         return result

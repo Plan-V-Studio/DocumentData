@@ -176,6 +176,11 @@ final class DocumentDataTests: XCTestCase {
                     Foundation.URL(filePath: Foundation.NSHomeDirectory())
                         .appending(components: "Library", "Application Support", _$persistedDocumentName)
                 }
+            
+                static func delete() throws {
+                    let fileManager = Foundation.FileManager()
+                    try fileManager.removeItem(at: url)
+                }
             }
 
             extension StoringData: Observation.Observable {
@@ -484,6 +489,11 @@ final class DocumentDataTests: XCTestCase {
                 static var url: URL {
                     Foundation.URL(filePath: Foundation.NSHomeDirectory())
                         .appending(components: "Library", "Application Support", _$persistedDocumentName)
+                }
+            
+                static func delete() throws {
+                    let fileManager = Foundation.FileManager()
+                    try fileManager.removeItem(at: url)
                 }
             }
 
