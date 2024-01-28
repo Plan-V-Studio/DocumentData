@@ -46,6 +46,16 @@ final class DocumentDataIntergrationTests: XCTestCase {
         
         XCTAssertEqual(TestClass.default.string, "Bonjour!")
     }
+    
+    func testDelete() throws {
+        guard TestClass.isPersisted else {
+            throw XCTSkip("The persistent file does not exist, please run testCreate() first.")
+        }
+        
+        try TestClass.delete()
+        
+        XCTAssertEqual(TestClass.isPersisted, false)
+    }
 }
 
 #if canImport(DocumentData)

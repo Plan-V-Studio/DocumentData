@@ -41,7 +41,8 @@ import Observation
         named(withMutation),
         named(`default`),
         named(isPersisted),
-        named(url)
+        named(url),
+        named(delete)
 )
 @attached(memberAttribute)
 @attached(extension, conformances: Observable, Codable, DocumentPersistedModel)
