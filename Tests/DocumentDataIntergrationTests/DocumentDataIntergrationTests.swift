@@ -26,6 +26,7 @@ final class DocumentDataIntergrationTests: XCTestCase {
             ignored: "some"
         )
         print(testCase)
+        testCase.save()
     }
     
     func testDefault() throws {

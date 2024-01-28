@@ -90,7 +90,15 @@ extension PersistedModelMacro: MemberMacro {
             
             // save
             """
-            func save() {
+            func save(autoCreateFolder: Bool = true) {
+                if autoCreateFolder {
+                    let fileManager = FileManager()
+                    let applicationSupportURL = Self.url.deletingLastPathComponent()
+                    if !fileManager.fileExists(atPath: applicationSupportURL.path(percentEncoded: false)) {
+                        try! fileManager.createDirectory(at: applicationSupportURL, withIntermediateDirectories: true)
+                    }
+                }
+                
                 let encoder = PropertyListEncoder()
                 encoder.outputFormat = .binary
                 
