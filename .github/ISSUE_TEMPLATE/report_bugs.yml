@@ -44,9 +44,9 @@ body:
       description: Can you paste the offending code here? Make sure it has the DocumentData API.
       render: swift
   - type: textarea
-    id: expcetion
+    id: exception
     attributes:
-      label: Expcetion
+      label: Exception
       description: Please paste the exception thrown by the compiler here.
     validations:
       required: true
