@@ -1,7 +1,7 @@
 name: Bug Report
 description: Give feedback on the bug you encounter.
 title: "<BUG>: "
-label: ["bug"]
+labels: ["bug"]
 body:
   - type: markdown
     attributes:
