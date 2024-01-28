@@ -1,11 +1,11 @@
 name: Bug Report
 description: Give feedback on the bug you encounter.
 title: "<BUG>: "
-label: ["bug", "traige"]
+label: ["bug"]
 body:
   - type: markdown
     attributes:
-      values: "## Thank you for telling us about the bugs that you encounte."
+      value: "## Thank you for telling us about the bugs that you encounte."
   - type: input
     id: brief
     attributes:
