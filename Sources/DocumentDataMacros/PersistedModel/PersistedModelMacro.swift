@@ -49,6 +49,108 @@ extension PersistedModelMacro: MemberMacro {
             """)
         }
         
+        // Migration
+        if try members.contains(where: assertMigration) {
+            var codeSet = [String]()
+            let members = decl.memberBlock.members
+            let variables = members.filter {
+                $0.decl.is(VariableDeclSyntax.self)
+            }.filter {
+                $0.decl.as(VariableDeclSyntax.self)!.attributes.isEmpty
+            }
+            codeSet.append(variables.description.trimmingCharacters(in: .whitespacesAndNewlines))
+            
+            let enums = members.filter {
+                $0.decl.is(EnumDeclSyntax.self)
+            }
+            
+            let migrationEnum = {
+                let migrationEnum = enums.first {
+                    $0.decl.as(EnumDeclSyntax.self)!.attributes.contains {
+                        $0.as(AttributeSyntax.self)?.attributeName.description == "Migration"
+                    }
+                }
+                
+                guard var migrationEnum = migrationEnum?.decl.as(EnumDeclSyntax.self) else {
+                    // TODO: ERROR Handling
+                    fatalError()
+                }
+                
+                // convert to _$MigrationMiddleware member
+                // make sure this is a private value
+                migrationEnum.attributes = []
+                asPrivateEnum(&migrationEnum)
+                migrationEnum.name = .identifier("_$OldCodingKey")
+                
+                return migrationEnum
+            }()
+            
+            let currentEnum = {
+                let currentEnum = enums.first {
+                    $0.decl.as(EnumDeclSyntax.self)!.attributes.contains {
+                        $0.as(AttributeSyntax.self)?.attributeName.description == "ModelCodingKey"
+                    }
+                }
+                
+                guard var currentEnum = currentEnum?.decl.as(EnumDeclSyntax.self) else {
+                    // TODO: ERROR Handling
+                    fatalError()
+                }
+                
+                // convert to _$MigrationMiddleware member
+                currentEnum.attributes = []
+                asPrivateEnum(&currentEnum)
+                currentEnum.name = .identifier("_$NewCodingKey")
+                
+                return currentEnum
+            }()
+            
+            // Consistency check
+            guard inheritanceClauseConsistencyC(migrationEnum, currentEnum) else {
+                // TODO: ERROR HANDLING
+                fatalError()
+            }
+            result += [
+                // migration function
+                """
+                static func migrate() {
+                    let data = try! Data(contentsOf: Self.url)
+                
+                    let decoder = Foundation.PropertyListDecoder()
+                    let old = try! decoder.decode(_$MigrationMiddleware.self, from: data)
+                    let encoder = Foundation.PropertyListEncoder()
+                    let new = try! encoder.encode(old)
+                    try! new.write(to: url)
+                }
+                """,
+                // shouldMigrate
+                """
+                static var shouldMigrate: Bool {
+                    do {
+                        let data = try Data(contentsOf: Self.url)
+                    
+                        let decoder = Foundation.PropertyListDecoder()
+                        _ = try decoder.decode(_$MigrationMiddleware.self, from: data)
+                
+                        return true
+                    } catch DecodingError.keyNotFound {
+                        return true
+                    } catch {
+                        return false
+                    }
+                }
+                """,
+                """
+                @_MigrationMiddleware
+                private final class _$MigrationMiddleware { \
+                    \(raw: codeSet.joined(separator: "\n"))
+                    \(raw: migrationEnum.description)
+                    \(raw: currentEnum.description)
+                }
+                """,
+            ]
+        }
+        
         result += [
             // Observable
             """
@@ -186,6 +288,20 @@ extension PersistedModelMacro: MemberMacro {
         return false
     }
     
+    private static func assertMigration(_ element: MemberBlockItemListSyntax.Element) throws -> Bool {
+        if let variable = element.decl.as(EnumDeclSyntax.self) {
+            if try variable.attributes.contains(where: { attr in
+                guard let decl = attr.as(AttributeSyntax.self) else {
+                    throw PersistedModelError.incorrectPropertyAttributeStructure
+                }
+                return decl.attributeName.description == "Migration"
+            }) {
+                return true
+            }
+        }
+        return false
+    }
+    
     private static func attributeDeclDocumentExpression(_ element: AttributeListSyntax.Element) throws -> Bool {
         guard let decl = element.as(AttributeSyntax.self) else {
             throw PersistedModelError.incorrectPropertyAttributeStructure
@@ -239,6 +355,48 @@ extension PersistedModelMacro: MemberMacro {
         }
         return expansion.joined(separator: "\n")
     }
+    
+    private static func asPrivateEnum(_ member: inout EnumDeclSyntax) {
+        if !member.modifiers.contains(where: {
+            $0.name.text == "private"
+        }) {
+            // if not, add "private" keyword
+            member.modifiers.append(
+                DeclModifierSyntax(
+                    name: TokenSyntax(
+                        .keyword(.private),
+                        leadingTrivia: Trivia(stringLiteral: "\n    "),
+                        trailingTrivia: Trivia(stringLiteral: " "),
+                        presence: .present
+                    )
+                )
+            )
+        }
+    }
+    
+    private static func inheritanceClauseConsistencyC(_ enum1: EnumDeclSyntax, _ enum2: EnumDeclSyntax) -> Bool {
+        guard let ic1 = enum1.inheritanceClause else {
+            return false
+        }
+        
+        guard let ic2 = enum2.inheritanceClause else {
+            return false
+        }
+        
+        let ic1Set = Set(
+            ic1.inheritedTypes.map {
+                $0.type.description
+            }
+        )
+        
+        let ic2Set = Set(
+            ic2.inheritedTypes.map {
+                $0.type.description
+            }
+        )
+        
+        return ic1Set == ic2Set
+    }
 }
 
 extension PersistedModelMacro: ExtensionMacro {
@@ -257,7 +415,23 @@ extension PersistedModelMacro: ExtensionMacro {
             return []
         }
         
-        return [
+        guard let members = decl.memberBlock.members.as(MemberBlockItemListSyntax.self) else {
+            throw PersistedModelError.incorrectClassStructure(syntax: decl)
+        }
+        
+        var result = [ExtensionDeclSyntax]()
+        
+        if try members.contains(where: assertMigration) {
+            result.append(
+                try ExtensionDeclSyntax(
+                    """
+                    extension \(raw: decl.name.text): DocumentData.Migratable { }
+                    """
+                )
+            )
+        }
+        
+        result += [
             try ExtensionDeclSyntax(
                 """
                 extension \(raw: decl.name.text): Observation.Observable { }
@@ -274,6 +448,8 @@ extension PersistedModelMacro: ExtensionMacro {
                 """
             ),
         ]
+        
+        return result
     }
 }
 

@@ -18,5 +18,6 @@ struct DocumentDataPlugin: CompilerPlugin {
         StorageNameMacro.self,
         ModelCodingKeyMacro.self,
         MigrationMacro.self,
+        _MigrationMiddlewareMacro.self,
     ]
 }
