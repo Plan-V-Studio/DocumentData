@@ -42,10 +42,13 @@ import Observation
         named(`default`),
         named(isPersisted),
         named(url),
-        named(delete)
+        named(delete),
+        named(migrate),
+        named(_$MigrationMiddleware),
+        named(shouldMigrate)
 )
 @attached(memberAttribute)
-@attached(extension, conformances: Observable, Codable, DocumentPersistedModel)
+@attached(extension, conformances: Observable, Codable, DocumentPersistedModel, Migratable)
 public macro PersistedModel() = #externalMacro(module: "DocumentDataMacros", type: "PersistedModelMacro")
 
 /// Convert a variable to DocumentData tracked.
@@ -140,3 +143,10 @@ public macro StorageName() = #externalMacro(module: "DocumentDataMacros", type: 
 /// - Warning: Any of the above properties exist in custom coding key may cause unexpected errors.
 @attached(peer, names: named(_$PersistedCodingKeys))
 public macro ModelCodingKey() = #externalMacro(module: "DocumentDataMacros", type: "ModelCodingKeyMacro")
+
+@attached(peer)
+public macro Migration() = #externalMacro(module: "DocumentDataMacros", type: "MigrationMacro")
+
+@attached(member, names: named(init), named(encode))
+@attached(extension, conformances: Codable)
+public macro _MigrationMiddleware() = #externalMacro(module: "DocumentDataMacros", type: "_MigrationMiddlewareMacro")

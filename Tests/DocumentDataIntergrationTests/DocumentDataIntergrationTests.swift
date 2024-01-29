@@ -55,6 +55,20 @@ final class DocumentDataIntergrationTests: XCTestCase {
         
         XCTAssertEqual(TestClass.isPersisted, false)
     }
+    
+    func testMigration() throws {
+        if !TestClass.isPersisted {
+            try testCreate()
+        }
+        
+        TestClass.migrate()
+        
+        // assert
+        let data = try Data(contentsOf: TestClass.url)
+        let decoder = PropertyListDecoder()
+        let result = try? decoder.decode(TestClass.self, from: data)
+        XCTAssertNotNil(result)
+    }
 }
 
 #if canImport(DocumentData)
@@ -77,6 +91,18 @@ final class TestClass {
     
     @ModelCodingKey
     enum CodingKeys: String, CodingKey {
+        case number = "NUMBER"
+        case string = "STRING"
+        case bool = "BOOL"
+        case data = "DATA"
+        case uuid = "UUID"
+        case array = "ARRAY"
+        case dict = "DICT"
+        case anyCodable = "CODABLE"
+    }
+    
+    @Migration
+    enum OldKeys: String, CodingKey {
         case number = "N"
         case string = "S"
         case bool = "B"

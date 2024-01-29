@@ -19,7 +19,7 @@ extension ModelCodingKeyMacro: PeerMacro {
         in context: some MacroExpansionContext
     ) throws -> [DeclSyntax] {
         guard let decl = declaration.as(EnumDeclSyntax.self) else {
-            throw PersistedModelError.onlyAvailableForEnum
+            throw PersistedModelError.onlyAvailableForEnum(macroName: "ModelCodingKey")
         }
         
         guard let inheritanceClause = decl.inheritanceClause else {

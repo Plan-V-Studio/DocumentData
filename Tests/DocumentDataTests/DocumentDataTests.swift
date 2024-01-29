@@ -13,7 +13,9 @@ let testMacros: [String: Macro.Type] = [
     "_PersistedIgnored": PersistedIgnoredMacro.self,
     "StorageName": StorageNameMacro.self,
     "PersistedIgnored": ObservationPersistedIgnoredMacro.self,
-    "ModelCodingKey": ModelCodingKeyMacro.self
+    "ModelCodingKey": ModelCodingKeyMacro.self,
+    "Migration": MigrationMacro.self,
+    "_MigrationMiddleware": _MigrationMiddlewareMacro.self,
 ]
 #endif
 
@@ -511,6 +513,272 @@ final class DocumentDataTests: XCTestCase {
                     let fileManager = Foundation.FileManager()
                     try fileManager.removeItem(at: url)
                 }
+            }
+
+            extension StoringData: Observation.Observable {
+            }
+
+            extension StoringData: Codable {
+            }
+
+            extension StoringData: DocumentData.DocumentPersistedModel {
+            }
+            """#,
+            macros: testMacros
+        )
+        #else
+        throw XCTSkip("macros are only supported when running tests for the host platform")
+        #endif
+    }
+    
+    func testMigrationExpansion() throws {
+        #if canImport(DocumentDataMacros)
+        assertMacroExpansion(
+            """
+            @Migration
+            enum MigrationKeys: String, CodingKey {
+                case string
+                case uuid
+                case integer
+            }
+            """,
+            expandedSource: """
+            enum MigrationKeys: String, CodingKey {
+                case string
+                case uuid
+                case integer
+            }
+            
+            enum _$OldCodingKeys: String, CodingKey {
+                case _string = "string"
+                case _uuid = "uuid"
+                case _integer = "integer"
+            }
+            """,
+            macros: testMacros
+        )
+        #else
+        throw XCTSkip("macros are only supported when running tests for the host platform")
+        #endif
+    }
+    
+    func testPersistedModelMacroExpansionWithMigration() throws {
+        #if canImport(DocumentDataMacros)
+        assertMacroExpansion(
+            """
+            @PersistedModel
+            final class StoringData {
+                var isFirstToggleOpen: Bool
+                var textFieldText: String
+                
+                @ModelCodingKey
+                enum CodingKeys: String, CodingKey {
+                    case isFirstToggleOpen = "Toggle"
+                    case textFieldText = "Field"
+                }
+            
+                @Migration
+                private enum OldKeys: String, CodingKey {
+                    case isFirstToggleOpen, textFieldText
+                }
+                
+                init(isFirstToggleOpen: Bool, textFieldText: String) {
+                    self.isFirstToggleOpen = isFirstToggleOpen
+                    self.textFieldText = textFieldText
+                }
+            }
+            """,
+            expandedSource: #"""
+            final class StoringData {
+                var isFirstToggleOpen: Bool {
+                    @storageRestrictions(initializes: _isFirstToggleOpen)
+                    init {
+                        _isFirstToggleOpen = newValue
+                    }
+                    get {
+                        access(keyPath: \.isFirstToggleOpen)
+                        return access(\._isFirstToggleOpen)
+                    }
+                    set {
+                        withMutation(keyPath: \.isFirstToggleOpen) {
+                            _isFirstToggleOpen = newValue
+                            self.save()
+                        }
+                    }
+                }
+
+                private var _isFirstToggleOpen: Bool
+                var textFieldText: String {
+                    @storageRestrictions(initializes: _textFieldText)
+                    init {
+                        _textFieldText = newValue
+                    }
+                    get {
+                        access(keyPath: \.textFieldText)
+                        return access(\._textFieldText)
+                    }
+                    set {
+                        withMutation(keyPath: \.textFieldText) {
+                            _textFieldText = newValue
+                            self.save()
+                        }
+                    }
+                }
+
+                private var _textFieldText: String
+                
+                enum CodingKeys: String, CodingKey {
+                    case isFirstToggleOpen = "Toggle"
+                    case textFieldText = "Field"
+                }
+
+                enum _$PersistedCodingKeys: String, CodingKey {
+                    case _isFirstToggleOpen = "Toggle"
+                    case _textFieldText = "Field"
+                }
+                private enum OldKeys: String, CodingKey {
+                    case isFirstToggleOpen, textFieldText
+                }
+                
+                init(isFirstToggleOpen: Bool, textFieldText: String) {
+                    self.isFirstToggleOpen = isFirstToggleOpen
+                    self.textFieldText = textFieldText
+                }
+
+                private static let _$persistedDocumentName = "StoringData.storage.plist"
+
+                static func migrate() {
+                    let data = try! Data(contentsOf: Self.url)
+
+                    let decoder = Foundation.PropertyListDecoder()
+                    let old = try! decoder.decode(_$MigrationMiddleware.self, from: data)
+                    let encoder = Foundation.PropertyListEncoder()
+                    let new = try! encoder.encode(old)
+                    try! new.write(to: url)
+                }
+
+                static var shouldMigrate: Bool {
+                    do {
+                        let data = try Data(contentsOf: Self.url)
+
+                        let decoder = Foundation.PropertyListDecoder()
+                        _ = try decoder.decode(_$MigrationMiddleware.self, from: data)
+
+                        return true
+                    } catch DecodingError.keyNotFound {
+                        return true
+                    } catch {
+                        return false
+                    }
+                }
+                private final class _$MigrationMiddleware {
+                    var isFirstToggleOpen: Bool
+                        var textFieldText: String
+
+                        private enum _$OldCodingKey: String, CodingKey {
+                            case isFirstToggleOpen, textFieldText
+                        }
+
+                        private
+                        enum _$NewCodingKey: String, CodingKey {
+                            case isFirstToggleOpen = "Toggle"
+                            case textFieldText = "Field"
+                        }
+
+                    func encode(to encoder: Encoder) throws {
+                        var container = encoder.container(keyedBy: _$NewCodingKey.self)
+                        try container.encode(isFirstToggleOpen, forKey: .isFirstToggleOpen)
+                        try container.encode(textFieldText, forKey: .textFieldText)
+                    }
+
+                    required init(from decoder: Decoder) throws {
+                        let container = try decoder.container(keyedBy: _$OldCodingKey.self)
+                        self.isFirstToggleOpen = try container.decode(Bool.self, forKey: .isFirstToggleOpen)
+                        self.textFieldText = try container.decode(String.self, forKey: .textFieldText)
+                    }
+                }
+                private let _$observationRegistrar = Observation.ObservationRegistrar()
+
+                func encode(to encoder: Encoder) throws {
+                    var container = encoder.container(keyedBy: _$PersistedCodingKeys.self)
+                    try container.encode(_isFirstToggleOpen, forKey: ._isFirstToggleOpen)
+                    try container.encode(_textFieldText, forKey: ._textFieldText)
+                }
+
+                required init(from decoder: Decoder) throws {
+                    let container = try decoder.container(keyedBy: _$PersistedCodingKeys.self)
+                    self._isFirstToggleOpen = try container.decode(Bool.self, forKey: ._isFirstToggleOpen)
+                    self._textFieldText = try container.decode(String.self, forKey: ._textFieldText)
+                }
+
+                func access<T>(_ keyPath: KeyPath<StoringData, T>) -> T where T: Codable {
+                    if !Foundation.FileManager.default.fileExists(atPath: Self.url.path(percentEncoded: false)) {
+                        self.save()
+                    }
+
+                    let data = try! Data(contentsOf: Self.url)
+
+                    let decoder = Foundation.PropertyListDecoder()
+
+                    let decoded = try! decoder.decode(StoringData.self, from: data)
+                    return decoded[keyPath: keyPath]
+                }
+
+                func save(autoCreateFolder: Bool = true) {
+                    if autoCreateFolder {
+                        let fileManager = FileManager()
+                        let applicationSupportURL = Self.url.deletingLastPathComponent()
+                        if !fileManager.fileExists(atPath: applicationSupportURL.path(percentEncoded: false)) {
+                            try! fileManager.createDirectory(at: applicationSupportURL, withIntermediateDirectories: true)
+                        }
+                    }
+
+                    let encoder = PropertyListEncoder()
+                    encoder.outputFormat = .binary
+
+                    let encoded = try! encoder.encode(self)
+                    try! encoded.write(to: Self.url)
+                }
+
+                internal nonisolated func access<Member>(
+                    keyPath: KeyPath<StoringData, Member>
+                ) {
+                    _$observationRegistrar.access(self, keyPath: keyPath)
+                }
+
+                internal nonisolated func withMutation<Member, MutationResult>(
+                    keyPath: KeyPath<StoringData, Member>,
+                    _ mutation: () throws -> MutationResult
+                ) rethrows -> MutationResult {
+                    try _$observationRegistrar.withMutation(of: self, keyPath: keyPath, mutation)
+                }
+
+                static var `default`: StoringData {
+                    let data = try! Data(contentsOf: Self.url)
+                    let decoder = Foundation.PropertyListDecoder()
+                    return try! decoder.decode(StoringData.self, from: data)
+                }
+
+                static var isPersisted: Bool {
+                    let fileManager = Foundation.FileManager()
+                    return fileManager.fileExists(atPath: Self.url.path(percentEncoded: false))
+                }
+
+                static var url: URL {
+                    Foundation.URL(filePath: Foundation.NSHomeDirectory())
+                        .appending(components: "Library", "Application Support", _$persistedDocumentName)
+                }
+
+                static func delete() throws {
+                    let fileManager = Foundation.FileManager()
+                    try fileManager.removeItem(at: url)
+                }
+            }
+
+            extension _$MigrationMiddleware: Codable {
+            }
+
+            extension StoringData: DocumentData.Migratable {
             }
 
             extension StoringData: Observation.Observable {
